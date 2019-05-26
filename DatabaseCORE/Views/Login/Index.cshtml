@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+
+<html>
+
+<head>
+	@{
+		ViewBag.Title = "Login";
+		Layout = null;
+	}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+	<title>Login</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+	<link rel="stylesheet" href="/CSS/Login-Form-Clean.css">
+</head>
+
+<body style="background-color: rgb(255,255,255);">
+	<div class="text-center" style="background-color: #059ee8;font-size: 22px;">
+		<div class="container" style="background-color: rgba(5,158,232,0);">
+			<div class="row">
+				<div class="col-md-12"><label class="col-form-label text-center" style="color: rgb(255,255,255);">Dan Webshop</label></div>
+			</div>
+		</div>
+	</div>
+	<div class="login-clean" style="background-color: rgba(241,247,252,0);padding: 20px 0px;">
+		<form class="border rounded" method="post">
+			<div class="illustration"><i class="icon ion-log-in" style="color: #059ee8;"></i></div>
+
+			<div class="form-group"><input class="border rounded form-control" type="text" name="username" required="" placeholder="Brugernavn" style="font-size: 16px;"></div>
+			<div class="form-group"><input class="border rounded form-control" type="password" name="password" required="" placeholder="Kodeord"></div>
+			<label class="d-flex justify-content-center" id="errorLabel" style="color:red">@TempData["msg"]</label>
+			<div class="form-group"><button class="btn btn-primary btn-block border rounded" type="submit" style="background-color: #059ee8;">Log ind</button></div>
+			<a class="border rounded forgot">@Html.ActionLink("Sign up", "Signup", "Login", null, new { @class = "nav-link" })</a>
+		</form>
+
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
