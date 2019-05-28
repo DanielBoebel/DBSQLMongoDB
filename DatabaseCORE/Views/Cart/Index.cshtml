@@ -59,6 +59,17 @@
 				<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
 			</td>
 		</tr>
-}
+}	
     </tbody>
+	<tbody>
+		<tr>
+			<th>
+				Total amount to pay: @ViewBag.amount
+			</th>
+			<td>
+				@*<a asp-action="Order" asp-route-id="@ViewBag.amount">Order now</a>*@
+				@Html.ActionLink("Order now", "Index", "Cart")
+			</td>
+		</tr>
+	</tbody>
 </table>

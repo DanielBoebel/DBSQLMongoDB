@@ -82,12 +82,12 @@ namespace DatabaseCORE.Models
                 entity.Property(e => e.InvoiceId).HasColumnName("invoiceId");
 
                 entity.Property(e => e.InvoiceDate)
-                    .HasColumnName("invoice_date")
+                    .HasColumnName("invoiceDate")
                     .HasColumnType("datetime");
 
                 entity.Property(e => e.InvoiceDetails)
                     .IsRequired()
-                    .HasColumnName("invoice_details")
+                    .HasColumnName("invoiceDetails")
                     .HasMaxLength(100);
 
                 entity.Property(e => e.OrderId).HasColumnName("orderId");
@@ -119,17 +119,13 @@ namespace DatabaseCORE.Models
 
             modelBuilder.Entity<Order>(entity =>
             {
+                entity.Property(e => e.AmountToPay)
+                    .HasColumnName("amountToPay")
+                    .HasColumnType("decimal(18, 0)");
+
                 entity.Property(e => e.DateCompleted)
                     .HasColumnName("dateCompleted")
                     .HasColumnType("datetime");
-
-                entity.Property(e => e.UserId).HasColumnName("userId");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Order)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Order_User");
             });
 
             modelBuilder.Entity<Payment>(entity =>
@@ -177,12 +173,12 @@ namespace DatabaseCORE.Models
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.Property(e => e.RoleDescription)
-                    .HasColumnName("role_description")
+                    .HasColumnName("roleDescription")
                     .HasMaxLength(100);
 
                 entity.Property(e => e.RoleName)
                     .IsRequired()
-                    .HasColumnName("role_name")
+                    .HasColumnName("roleName")
                     .HasMaxLength(20);
             });
 

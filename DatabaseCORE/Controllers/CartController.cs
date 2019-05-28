@@ -17,6 +17,7 @@ namespace DatabaseCORE.Controllers
 		// GET: Cart
 		public ActionResult Index()
         {
+			ViewBag.amount = db.Cart.Sum(c => c.TotalAmount);
 			cartList = db.Cart.Where(c => c.UserId == HttpContext.Session.GetInt32("Id")).ToList();
 			ViewBag.session = true;
 			return View(cartList);
@@ -72,5 +73,21 @@ namespace DatabaseCORE.Controllers
                 return View();
             }
         }
+
+
+		public ActionResult Order()
+		{
+			Order order = new Order();
+			order.DateCompleted = DateTime.Now;
+			order.AmountToPay = (decimal)db.Cart.Sum(c => c.TotalAmount);
+
+			db.Add(order);
+			db.SaveChanges();
+
+			return RedirectToAction("Index", "Invoice");
+		}
+
+
+
     }
 }

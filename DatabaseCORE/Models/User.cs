@@ -9,7 +9,6 @@ namespace DatabaseCORE.Models
         {
             Cart = new HashSet<Cart>();
             Newsletter = new HashSet<Newsletter>();
-            Order = new HashSet<Order>();
             PaymentInformation = new HashSet<PaymentInformation>();
             UserRole = new HashSet<UserRole>();
         }
@@ -23,7 +22,6 @@ namespace DatabaseCORE.Models
 
         public virtual ICollection<Cart> Cart { get; set; }
         public virtual ICollection<Newsletter> Newsletter { get; set; }
-        public virtual ICollection<Order> Order { get; set; }
         public virtual ICollection<PaymentInformation> PaymentInformation { get; set; }
         public virtual ICollection<UserRole> UserRole { get; set; }
     }
