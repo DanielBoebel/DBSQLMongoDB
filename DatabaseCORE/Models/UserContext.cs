@@ -9,6 +9,6 @@ namespace DatabaseCORE.Models
 {
 	public class UserContext : DbContext
 	{
-		public DbSet<Users> Users{ get; set; }
+		public DbSet<User> User{ get; set; }
 	}
 }

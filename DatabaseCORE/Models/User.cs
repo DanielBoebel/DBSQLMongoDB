@@ -11,6 +11,7 @@ namespace DatabaseCORE.Models
             Newsletter = new HashSet<Newsletter>();
             Order = new HashSet<Order>();
             PaymentInformation = new HashSet<PaymentInformation>();
+            UserRole = new HashSet<UserRole>();
         }
 
         public int Id { get; set; }
@@ -19,11 +20,11 @@ namespace DatabaseCORE.Models
         public string Streetname { get; set; }
         public int UserZipcode { get; set; }
         public string Cityname { get; set; }
-        public string UserType { get; set; }
 
         public virtual ICollection<Cart> Cart { get; set; }
         public virtual ICollection<Newsletter> Newsletter { get; set; }
         public virtual ICollection<Order> Order { get; set; }
         public virtual ICollection<PaymentInformation> PaymentInformation { get; set; }
+        public virtual ICollection<UserRole> UserRole { get; set; }
     }
 }

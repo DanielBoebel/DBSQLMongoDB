@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DatabaseCORE.Models;
 using Microsoft.AspNetCore.Http;
-
+using Newtonsoft;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
+using Nancy.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
+using System.Net;
 
 namespace DatabaseCORE.Controllers
 {
@@ -16,13 +21,76 @@ namespace DatabaseCORE.Controllers
 	{
 
 		private DBWebshopContext db = new DBWebshopContext();
+		public static List<Cart> cartList = new List<Cart>();
 
 		public IActionResult Index()
 		{
-			GetProduct();
 			ViewBag.session = true;
+			GetProducts();
+			var model = GetProducts();
+			
+
 			return View();
 		}
+
+		public IActionResult Products()
+		{
+			cartList = db.Cart.Where(c => c.UserId == HttpContext.Session.GetInt32("Id")).ToList();
+			ViewBag.session = true;
+			return View(GetProducts());
+		}
+
+
+		public IActionResult addProducts(int productID, string productName, decimal price)
+		{
+			Cart cart = new Cart();
+			if (!cartList.Any(x => x.ProductId == productID))
+			{
+				var id = (int)HttpContext.Session.GetInt32("Id");
+				cart.ProductId = productID;
+				cart.Productname = productName;
+				cart.ProductPrice = price.ToString();
+				cart.TotalAmount = price;
+				cart.Quantity = 1;
+				cart.UserId = (int)HttpContext.Session.GetInt32("Id");
+				db.Add(cart);
+				db.SaveChanges();
+
+			}
+			else
+			{
+
+				var product = cartList.Where(cl => cl.ProductId == productID).FirstOrDefault();
+				product.Quantity += 1;
+				product.TotalAmount += price;
+				db.Update(product);
+				db.SaveChanges();
+			}
+			cartList.Add(cart);
+			return RedirectToAction("Products","Home");
+		}
+
+
+		public IActionResult Cart()
+		{
+			ViewBag.session = true;
+			return View(cartList);
+		}
+
+
+		public IActionResult CartEdit()
+		{
+			ViewBag.session = true;
+			return RedirectToAction("Products", "Home");
+		}
+
+		public IActionResult CartDelete()
+		{
+			ViewBag.session = true;
+			return RedirectToAction("Products", "Home");
+		}
+
+
 
 		[HttpPost]
 		public IActionResult Index([Bind("Email")] Newsletter newsletter)
@@ -30,7 +98,7 @@ namespace DatabaseCORE.Controllers
 			var subscribeBoolean = false;
 			try {
 				var subscribed = db.Newsletter.Where(n => n.Email == newsletter.Email).FirstOrDefault();
-				var subscribedAcc = db.Newsletter.Where(n => n.UserId == (int)HttpContext.Session.GetInt32("ID")).FirstOrDefault();
+				var subscribedAcc = db.Newsletter.Where(n => n.Id == (int)HttpContext.Session.GetInt32("Id")).FirstOrDefault();
 
 				if (subscribed == null && subscribedAcc == null)
 				{
@@ -46,7 +114,7 @@ namespace DatabaseCORE.Controllers
 			{
 				newsletter.Subscribed = 1;
 				var userId = HttpContext.Session.GetInt32("ID");
-				newsletter.UserId = (int)userId;
+				newsletter.Id = (int)userId;
 				db.Add(newsletter);
 				db.SaveChanges();
 				ModelState.AddModelError("Email", "you are now subscribed!");
@@ -61,43 +129,19 @@ namespace DatabaseCORE.Controllers
 
 			return View();
 		}
-
-
-		public static async void GetProduct()
+		public static List<ProductItem> GetProducts()
 		{
+			List<ProductItem> pi = new List<ProductItem>();
 			string baseUrl = "https://localhost:44340/api/product";
-			try
-			{
-				using (HttpClient client = new HttpClient())
-				{
-					using (HttpResponseMessage res = await client.GetAsync(baseUrl))
-					{
-						//Then get the data or content from the response in the next using statement, then within it you will get the data, and convert it to a c# object.
-						using (HttpContent content = res.Content)
-						{
-							//Now assign your content to your data variable, by converting into a string using the await keyword.
-							var data = await content.ReadAsStringAsync();
-							//If the data isn't null return log convert the data using newtonsoft JObject Parse class method on the data.
-							if (data != null)
-							{
-								//Now log your data in the console
-								System.Diagnostics.Debug.WriteLine("data------------{0}", data);
-							}
-							else
-							{
-								System.Diagnostics.Debug.WriteLine("NO Data----------");
-							}
 
-						}
-					}
+			var syncClient = new WebClient();
 
-				}
-			} catch(Exception e)
-			{
-				Console.WriteLine(e);
-			}
+			var content = syncClient.DownloadString(baseUrl);
+
+
+
+			return JsonConvert.DeserializeObject<List<ProductItem>>(content);
 		}
-
 
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

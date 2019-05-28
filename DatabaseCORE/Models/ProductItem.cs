@@ -15,6 +15,11 @@ namespace DatabaseCORE.Models
 			this.price = price;
 		}
 
+		public ProductItem()
+		{
+
+		}
+
 		public string id { get; set; }
 
 		public int productID { get; set; }
@@ -22,5 +27,20 @@ namespace DatabaseCORE.Models
 		public string productName { get; set; }
 
 		public decimal price { get; set; }
+
+		public List<ProductItem> productItems
+		{
+			get;
+			set;
+		}
+	}
+
+	public class ProductItems
+	{
+		public List<ProductItem> productItems
+		{
+			get;
+			set;
+		}
 	}
 }

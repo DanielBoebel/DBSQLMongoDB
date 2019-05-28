@@ -16,16 +16,23 @@ namespace DatabaseCORE.Models
         }
 
         public virtual DbSet<Cart> Cart { get; set; }
+        public virtual DbSet<Invoice> Invoice { get; set; }
         public virtual DbSet<Newsletter> Newsletter { get; set; }
         public virtual DbSet<Order> Order { get; set; }
+        public virtual DbSet<Payment> Payment { get; set; }
         public virtual DbSet<PaymentInformation> PaymentInformation { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<Shipment> Shipment { get; set; }
+        public virtual DbSet<ShipmentItem> ShipmentItem { get; set; }
         public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<UserRole> UserRole { get; set; }
         public virtual DbSet<ZipCode> ZipCode { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Data Source=DESKTOP-HH6J00I\\SQLEXPRESS;Initial Catalog=DBWebshop;Integrated Security=True");
             }
         }
@@ -36,26 +43,64 @@ namespace DatabaseCORE.Models
 
             modelBuilder.Entity<Cart>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnName("ID");
+                entity.Property(e => e.OrderId).HasColumnName("orderId");
+
+                entity.Property(e => e.ProductId).HasColumnName("productId");
+
+                entity.Property(e => e.ProductPrice)
+                    .HasColumnName("productPrice")
+                    .HasMaxLength(10);
 
                 entity.Property(e => e.Productname)
                     .IsRequired()
+                    .HasColumnName("productname")
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.TotalAmount).HasMaxLength(10);
+                entity.Property(e => e.Quantity).HasColumnName("quantity");
+
+                entity.Property(e => e.TotalAmount)
+                    .HasColumnName("totalAmount")
+                    .HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.UserId).HasColumnName("userId");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.Cart)
+                    .HasForeignKey(d => d.OrderId)
+                    .HasConstraintName("FK_Cart_Order");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Cart)
-                    .HasForeignKey(d => d.Userid)
+                    .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_User_Cart");
             });
 
+            modelBuilder.Entity<Invoice>(entity =>
+            {
+                entity.Property(e => e.InvoiceId).HasColumnName("invoiceId");
+
+                entity.Property(e => e.InvoiceDate)
+                    .HasColumnName("invoice_date")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.InvoiceDetails)
+                    .IsRequired()
+                    .HasColumnName("invoice_details")
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.OrderId).HasColumnName("orderId");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.Invoice)
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Invoices_Order");
+            });
+
             modelBuilder.Entity<Newsletter>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnName("ID");
-
                 entity.Property(e => e.Email)
                     .IsRequired()
                     .HasColumnName("email")
@@ -63,7 +108,7 @@ namespace DatabaseCORE.Models
 
                 entity.Property(e => e.Subscribed).HasColumnName("subscribed");
 
-                entity.Property(e => e.UserId).HasColumnName("UserID");
+                entity.Property(e => e.UserId).HasColumnName("userID");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Newsletter)
@@ -74,27 +119,11 @@ namespace DatabaseCORE.Models
 
             modelBuilder.Entity<Order>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnName("ID");
+                entity.Property(e => e.DateCompleted)
+                    .HasColumnName("dateCompleted")
+                    .HasColumnType("datetime");
 
-                entity.Property(e => e.CartId).HasColumnName("CartID");
-
-                entity.Property(e => e.DateCompleted).HasColumnType("datetime");
-
-                entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
-
-                entity.Property(e => e.UserId).HasColumnName("UserID");
-
-                entity.HasOne(d => d.Cart)
-                    .WithMany(p => p.Order)
-                    .HasForeignKey(d => d.CartId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Order_Cart");
-
-                entity.HasOne(d => d.Payment)
-                    .WithMany(p => p.Order)
-                    .HasForeignKey(d => d.PaymentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Order_PaymentInformation");
+                entity.Property(e => e.UserId).HasColumnName("userId");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Order)
@@ -103,21 +132,40 @@ namespace DatabaseCORE.Models
                     .HasConstraintName("FK_Order_User");
             });
 
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.Property(e => e.PaymentId).HasColumnName("paymentId");
+
+                entity.Property(e => e.InvoiceId).HasColumnName("invoiceId");
+
+                entity.Property(e => e.PaymentAmount)
+                    .HasColumnName("paymentAmount")
+                    .HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.PaymentDate)
+                    .HasColumnName("paymentDate")
+                    .HasColumnType("datetime");
+
+                entity.HasOne(d => d.Invoice)
+                    .WithMany(p => p.Payment)
+                    .HasForeignKey(d => d.InvoiceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Payment_Invoices");
+            });
+
             modelBuilder.Entity<PaymentInformation>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnName("ID");
-
                 entity.Property(e => e.CardNumber)
                     .IsRequired()
+                    .HasColumnName("cardNumber")
                     .HasMaxLength(50);
 
                 entity.Property(e => e.CardOwnerName)
                     .IsRequired()
+                    .HasColumnName("cardOwnerName")
                     .HasMaxLength(50);
 
-                entity.Property(e => e.CartId).HasColumnName("CartID");
-
-                entity.Property(e => e.UserId).HasColumnName("UserID");
+                entity.Property(e => e.UserId).HasColumnName("userID");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.PaymentInformation)
@@ -126,10 +174,54 @@ namespace DatabaseCORE.Models
                     .HasConstraintName("FK_PaymentInformation_User");
             });
 
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.Property(e => e.RoleDescription)
+                    .HasColumnName("role_description")
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.RoleName)
+                    .IsRequired()
+                    .HasColumnName("role_name")
+                    .HasMaxLength(20);
+            });
+
+            modelBuilder.Entity<Shipment>(entity =>
+            {
+                entity.Property(e => e.ShipmentId).HasColumnName("shipmentId");
+
+                entity.Property(e => e.InvoiceNumber).HasColumnName("invoiceNumber");
+
+                entity.Property(e => e.OrderId).HasColumnName("orderId");
+
+                entity.Property(e => e.ShipmentDate)
+                    .HasColumnName("shipmentDate")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.ShipmentTrackingNumber).HasColumnName("shipmentTrackingNumber");
+
+                entity.HasOne(d => d.InvoiceNumberNavigation)
+                    .WithMany(p => p.Shipment)
+                    .HasForeignKey(d => d.InvoiceNumber)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Shipment_Invoices");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.Shipment)
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Shipment_Order");
+            });
+
+            modelBuilder.Entity<ShipmentItem>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
 
+                entity.Property(e => e.ShipmentId).HasColumnName("ShipmentID");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
                 entity.Property(e => e.Cityname)
                     .IsRequired()
                     .HasColumnName("cityname")
@@ -145,10 +237,6 @@ namespace DatabaseCORE.Models
                     .HasColumnName("streetname")
                     .HasMaxLength(70);
 
-                entity.Property(e => e.UserType)
-                    .HasColumnName("userType")
-                    .HasMaxLength(10);
-
                 entity.Property(e => e.UserZipcode).HasColumnName("userZipcode");
 
                 entity.Property(e => e.Username)
@@ -157,10 +245,29 @@ namespace DatabaseCORE.Models
                     .HasMaxLength(30);
             });
 
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+
+                entity.Property(e => e.UserId).HasColumnName("userId");
+
+                entity.Property(e => e.RoleId).HasColumnName("roleId");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.UserRole)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_User_Role_Role");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserRole)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_User_Role_User");
+            });
+
             modelBuilder.Entity<ZipCode>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnName("ID");
-
                 entity.Property(e => e.City)
                     .HasColumnName("city")
                     .HasMaxLength(255);

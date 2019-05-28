@@ -1,0 +1,45 @@
+﻿@model IEnumerable<DatabaseCORE.Models.ProductItem>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h1>Products</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.productID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.productName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.price)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+		<tr>
+			<td>
+				@Html.DisplayFor(modelItem => item.productID)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.productName)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.price)
+			</td>
+
+			<td>@Html.ActionLink("Add", "addProducts", "Home", new {productID = item.productID, productName = item.productName, price = item.price }) </td>
+		</tr>
+		}
+	</tbody>
+</table>

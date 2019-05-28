@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace DatabaseCORE.Models
 {
-    public partial class Post
+    public partial class ShipmentItem
     {
+        public int ShipmentId { get; set; }
+        public int CartD { get; set; }
         public int Id { get; set; }
-        public int? Postnummer { get; set; }
-        public string By { get; set; }
     }
 }

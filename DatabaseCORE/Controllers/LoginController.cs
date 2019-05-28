@@ -36,7 +36,7 @@ namespace DatabaseCORE.Controllers
 
 			if (username.Equals(usernameDB[0]) && password.Equals(passwordDB[0]))
 			{
-				HttpContext.Session.SetInt32("ID", IdDB); 
+				HttpContext.Session.SetInt32("Id", IdDB); 
 				return RedirectToAction("Index", "Home");
 			}
 			else
@@ -53,9 +53,11 @@ namespace DatabaseCORE.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Signup([Bind("Username,Password,Streetname,Zipcode")] User user)
+		public async Task<IActionResult> Signup([Bind("Username,Password,Streetname,UserZipcode")] User user)
 		{
-			var error = "";
+			UserRole userRole = new UserRole();
+			
+
 			var uniqueUser = db.User.Where(x => x.Username == user.Username).Select(x=>x.Username).ToList();
 			var cityname = db.ZipCode.Where(x => x.ZipCode1 == user.UserZipcode).Select(x => x.City).ToList();
 			if (cityname.Any())
@@ -70,7 +72,7 @@ namespace DatabaseCORE.Controllers
 
 			if (!uniqueUser.Any())
 			{
-				user.UserType = "Basic";
+
 				if (ModelState.IsValid)
 				{
 					db.Add(user);
