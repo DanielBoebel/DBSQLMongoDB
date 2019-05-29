@@ -1,0 +1,47 @@
+﻿@model DatabaseCORE.Models.ViewModel
+
+@{
+    ViewData["Title"] = "Invoice";
+}
+
+<h1>Orders</h1>
+
+<div>
+    <h4>Payment</h4>
+    <hr />
+	<dl class="row">
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.invoice.InvoiceId)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.invoice.InvoiceId)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.invoice.InvoiceDate)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.invoice.InvoiceDate)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.invoice.InvoiceDetails)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.invoice.InvoiceDetails)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.user.Username)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.user.Username)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.order.Id)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.order.Id)
+		</dd>
+	</dl>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

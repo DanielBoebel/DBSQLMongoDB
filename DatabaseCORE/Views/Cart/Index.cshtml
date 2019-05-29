@@ -55,7 +55,6 @@
 				@Html.DisplayFor(modelItem => item.User.Cityname)
 			</td>
 			<td>
-				<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
 				<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
 			</td>
 		</tr>
@@ -67,8 +66,8 @@
 				Total amount to pay: @ViewBag.amount
 			</th>
 			<td>
-				@*<a asp-action="Order" asp-route-id="@ViewBag.amount">Order now</a>*@
-				@Html.ActionLink("Order now", "Index", "Cart")
+				@*<a asp-action="Order" asp-route-id="@ViewBag.userID">Order now</a>*@
+				@Html.ActionLink("Pay now", "Payment", "Cart")
 			</td>
 		</tr>
 	</tbody>

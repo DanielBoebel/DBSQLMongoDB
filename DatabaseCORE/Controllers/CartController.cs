@@ -13,39 +13,19 @@ namespace DatabaseCORE.Controllers
 
 		private DBWebshopContext db = new DBWebshopContext();
 		public static List<Cart> cartList = new List<Cart>();
+		public static int userID;
 
 		// GET: Cart
 		public ActionResult Index()
         {
-			ViewBag.amount = db.Cart.Sum(c => c.TotalAmount);
-			cartList = db.Cart.Where(c => c.UserId == HttpContext.Session.GetInt32("Id")).ToList();
+			userID = (int)HttpContext.Session.GetInt32("Id");
+			ViewBag.amount = db.Cart.Where(ca => ca.UserId == userID).Sum(c => c.TotalAmount);
+			cartList = db.Cart.Where(c => c.UserId == userID).ToList();
 			ViewBag.session = true;
 			return View(cartList);
 		}
 
 
-        // GET: Cart/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: Cart/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
 
         // GET: Cart/Delete/5
 		[HttpGet]
@@ -75,19 +55,43 @@ namespace DatabaseCORE.Controllers
         }
 
 
-		public ActionResult Order()
+		public ActionResult Payment()
 		{
+			return View();
+		}
+
+		[HttpPost]
+		public ActionResult Payment([Bind("CardNumber","CardOwnerName")]PaymentInformation paymentInformation)
+		{
+
+			paymentInformation.UserId = userID;
+
+
 			Order order = new Order();
 			order.DateCompleted = DateTime.Now;
-			order.AmountToPay = (decimal)db.Cart.Sum(c => c.TotalAmount);
+			order.AmountToPay = (decimal)db.Cart.Where(ca => ca.UserId == userID).Sum(c => c.TotalAmount);
+			order.UserId = userID;
 
+			paymentInformation.UserId = userID;
 			db.Add(order);
+			db.Add(paymentInformation);
 			db.SaveChanges();
+			removeCart(userID);
 
-			return RedirectToAction("Index", "Invoice");
+			return RedirectToAction("Index","Invoice",userID);
 		}
 
 
+		public void removeCart(int Id)
+		{
+			var cart = db.Cart.Where(c => c.UserId == Id).ToList();
+			foreach (var item in cart)
+			{
+				db.Remove(item);
+				db.SaveChanges();
+			}
+
+		}
 
     }
 }

@@ -22,9 +22,12 @@ namespace DatabaseCORE.Controllers
 
 		private DBWebshopContext db = new DBWebshopContext();
 		public static List<Cart> cartList = new List<Cart>();
+		public static int userID;
 
 		public IActionResult Index()
 		{
+			userID = (int)HttpContext.Session.GetInt32("Id");
+			ViewBag.userID = userID;
 			ViewBag.session = true;
 			GetProducts();
 			var model = GetProducts();
@@ -35,7 +38,7 @@ namespace DatabaseCORE.Controllers
 
 		public IActionResult Products()
 		{
-			cartList = db.Cart.Where(c => c.UserId == HttpContext.Session.GetInt32("Id")).ToList();
+			cartList = db.Cart.Where(c => c.UserId == userID ).ToList();
 			ViewBag.session = true;
 			return View(GetProducts());
 		}
@@ -44,27 +47,26 @@ namespace DatabaseCORE.Controllers
 		public IActionResult addProducts(int productID, string productName, decimal price)
 		{
 			Cart cart = new Cart();
-			if (!cartList.Any(x => x.ProductId == productID))
+			if (cartList.Any(x => x.ProductId == productID))
 			{
-				var id = (int)HttpContext.Session.GetInt32("Id");
-				cart.ProductId = productID;
-				cart.Productname = productName;
-				cart.ProductPrice = price.ToString();
-				cart.TotalAmount = price;
-				cart.Quantity = 1;
-				cart.UserId = (int)HttpContext.Session.GetInt32("Id");
-				db.Add(cart);
-				db.SaveChanges();
-
-			}
-			else
-			{
-
 				var product = cartList.Where(cl => cl.ProductId == productID).FirstOrDefault();
 				product.Quantity += 1;
 				product.TotalAmount += price;
 				db.Update(product);
 				db.SaveChanges();
+			}
+			else
+			{
+				var id = userID;
+				cart.ProductId = productID;
+				cart.Productname = productName;
+				cart.ProductPrice = price.ToString();
+				cart.TotalAmount = price;
+				cart.Quantity = 1;
+				cart.UserId = (int)id;
+				db.Add(cart);
+				db.SaveChanges();
+
 			}
 			cartList.Add(cart);
 			return RedirectToAction("Products","Home");

@@ -36,7 +36,8 @@ namespace DatabaseCORE.Controllers
 
 			if (username.Equals(usernameDB[0]) && password.Equals(passwordDB[0]))
 			{
-				HttpContext.Session.SetInt32("Id", IdDB); 
+				HttpContext.Session.SetInt32("Id", IdDB);
+				
 				return RedirectToAction("Index", "Home");
 			}
 			else

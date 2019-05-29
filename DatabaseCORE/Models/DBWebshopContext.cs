@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using DatabaseCORE.Models;
 
 namespace DatabaseCORE.Models
 {
@@ -43,8 +44,6 @@ namespace DatabaseCORE.Models
 
             modelBuilder.Entity<Cart>(entity =>
             {
-                entity.Property(e => e.OrderId).HasColumnName("orderId");
-
                 entity.Property(e => e.ProductId).HasColumnName("productId");
 
                 entity.Property(e => e.ProductPrice)
@@ -64,11 +63,6 @@ namespace DatabaseCORE.Models
                     .HasColumnType("decimal(18, 0)");
 
                 entity.Property(e => e.UserId).HasColumnName("userId");
-
-                entity.HasOne(d => d.Order)
-                    .WithMany(p => p.Cart)
-                    .HasForeignKey(d => d.OrderId)
-                    .HasConstraintName("FK_Cart_Order");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Cart)
@@ -92,11 +86,19 @@ namespace DatabaseCORE.Models
 
                 entity.Property(e => e.OrderId).HasColumnName("orderId");
 
+                entity.Property(e => e.PaymentId).HasColumnName("paymentId");
+
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.Invoice)
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Invoices_Order");
+
+                entity.HasOne(d => d.Payment)
+                    .WithMany(p => p.Invoice)
+                    .HasForeignKey(d => d.PaymentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Invoice_Payment");
             });
 
             modelBuilder.Entity<Newsletter>(entity =>
@@ -126,13 +128,19 @@ namespace DatabaseCORE.Models
                 entity.Property(e => e.DateCompleted)
                     .HasColumnName("dateCompleted")
                     .HasColumnType("datetime");
+
+                entity.Property(e => e.UserId).HasColumnName("userId");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Order)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Order_User");
             });
 
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.Property(e => e.PaymentId).HasColumnName("paymentId");
-
-                entity.Property(e => e.InvoiceId).HasColumnName("invoiceId");
 
                 entity.Property(e => e.PaymentAmount)
                     .HasColumnName("paymentAmount")
@@ -142,11 +150,13 @@ namespace DatabaseCORE.Models
                     .HasColumnName("paymentDate")
                     .HasColumnType("datetime");
 
-                entity.HasOne(d => d.Invoice)
+                entity.Property(e => e.PaymentInfomrationId).HasColumnName("paymentInfomrationId");
+
+                entity.HasOne(d => d.PaymentInfomration)
                     .WithMany(p => p.Payment)
-                    .HasForeignKey(d => d.InvoiceId)
+                    .HasForeignKey(d => d.PaymentInfomrationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Payment_Invoices");
+                    .HasConstraintName("FK_Payment_PaymentInformation");
             });
 
             modelBuilder.Entity<PaymentInformation>(entity =>
@@ -271,5 +281,7 @@ namespace DatabaseCORE.Models
                 entity.Property(e => e.ZipCode1).HasColumnName("zipCode");
             });
         }
+
+        public DbSet<DatabaseCORE.Models.ProductItem> ProductItem { get; set; }
     }
 }
