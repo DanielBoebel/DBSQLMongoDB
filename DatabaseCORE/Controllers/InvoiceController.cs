@@ -66,10 +66,15 @@ namespace DatabaseCORE.Controllers
 		{
 
 			Payment payment = new Payment();
+
 			payment.PaymentAmount = db.Order.Where(o => o.UserId == userID).OrderByDescending(d => d.DateCompleted).Select(a => a.AmountToPay).FirstOrDefault();
+
 			payment.PaymentDate = DateTime.Now;
-			payment.PaymentInfomrationId = db.PaymentInformation.Where(pi => pi.UserId == userID).OrderByDescending(d => d.Id).Select(i => i.Id).FirstOrDefault();
+			payment.PaymentInfomrationId = db.PaymentInformation.Where(pi => pi.UserId == userID)
+				.OrderByDescending(d => d.Id).Select(i => i.Id).FirstOrDefault();
+
 			db.Add(payment);
+
 			db.SaveChanges();
 
 			Order order = new Order();

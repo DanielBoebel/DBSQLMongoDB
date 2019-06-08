@@ -100,11 +100,15 @@ namespace DatabaseCORE.Controllers
 			var subscribeBoolean = false;
 			try {
 				var subscribed = db.Newsletter.Where(n => n.Email == newsletter.Email).FirstOrDefault();
-				var subscribedAcc = db.Newsletter.Where(n => n.Id == (int)HttpContext.Session.GetInt32("Id")).FirstOrDefault();
 
-				if (subscribed == null && subscribedAcc == null)
+				if (subscribed == null)
 				{
 					subscribeBoolean = true;
+				}
+				else
+				{
+					ModelState.AddModelError("Email", "You're already subscribed ");
+					ViewBag.subscribed = false;
 				}
 			}
 			catch (Exception e)
@@ -122,25 +126,20 @@ namespace DatabaseCORE.Controllers
 				ModelState.AddModelError("Email", "you are now subscribed!");
 				ViewBag.subscribed = true;
 			}
-			else
-			{
-				ModelState.AddModelError("Email", "You're already subscribed ");
-				ViewBag.subscribed = false;
-			}
+			
 
 
 			return View();
 		}
 		public static List<ProductItem> GetProducts()
 		{
+
 			List<ProductItem> pi = new List<ProductItem>();
 			string baseUrl = "https://localhost:44340/api/product";
 
 			var syncClient = new WebClient();
 
 			var content = syncClient.DownloadString(baseUrl);
-
-
 
 			return JsonConvert.DeserializeObject<List<ProductItem>>(content);
 		}

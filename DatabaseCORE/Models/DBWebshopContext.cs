@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using DatabaseCORE.Models;
 
 namespace DatabaseCORE.Models
 {
@@ -236,7 +235,7 @@ namespace DatabaseCORE.Models
                 entity.Property(e => e.Password)
                     .IsRequired()
                     .HasColumnName("password")
-                    .HasMaxLength(50);
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.Streetname)
                     .IsRequired()
@@ -274,14 +273,33 @@ namespace DatabaseCORE.Models
 
             modelBuilder.Entity<ZipCode>(entity =>
             {
-                entity.Property(e => e.City)
-                    .HasColumnName("city")
-                    .HasMaxLength(255);
+                entity.HasKey(e => e.ZipCode1)
+                    .HasName("PK_Zip_Codes");
 
-                entity.Property(e => e.ZipCode1).HasColumnName("zipCode");
+                entity.Property(e => e.ZipCode1)
+                    .HasColumnName("zipCode")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.City)
+                    .IsRequired()
+                    .HasColumnName("city")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.District)
+                    .IsRequired()
+                    .HasColumnName("district")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Municipality)
+                    .IsRequired()
+                    .HasColumnName("municipality")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Province)
+                    .IsRequired()
+                    .HasColumnName("province")
+                    .HasMaxLength(50);
             });
         }
-
-        public DbSet<DatabaseCORE.Models.ProductItem> ProductItem { get; set; }
     }
 }

@@ -8,7 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Session;
-
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Net;
+using System.Web.Helpers;
 
 namespace DatabaseCORE.Controllers
 {
@@ -33,8 +36,10 @@ namespace DatabaseCORE.Controllers
 			var IdDB = db.User.Where(x => x.Username == username).Select(x => x.Id).FirstOrDefault();
 
 			passwordDB = db.User.Where(x => x.Username == username).Select(x => x.Password).ToList();
+			
+			bool validPassword = BCrypt.Net.BCrypt.Verify(password, passwordDB[0]);
 
-			if (username.Equals(usernameDB[0]) && password.Equals(passwordDB[0]))
+			if (username.Equals(usernameDB[0]) && validPassword == true)
 			{
 				HttpContext.Session.SetInt32("Id", IdDB);
 				
@@ -55,9 +60,7 @@ namespace DatabaseCORE.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Signup([Bind("Username,Password,Streetname,UserZipcode")] User user)
-		{
-			UserRole userRole = new UserRole();
-			
+		{			
 
 			var uniqueUser = db.User.Where(x => x.Username == user.Username).Select(x=>x.Username).ToList();
 			var cityname = db.ZipCode.Where(x => x.ZipCode1 == user.UserZipcode).Select(x => x.City).ToList();
@@ -73,7 +76,9 @@ namespace DatabaseCORE.Controllers
 
 			if (!uniqueUser.Any())
 			{
+				var hashedPw = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
+				user.Password = hashedPw;
 				if (ModelState.IsValid)
 				{
 					db.Add(user);
